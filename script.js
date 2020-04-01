@@ -1,13 +1,24 @@
-const canvas            = document.getElementById('game-canvas');
-const backgroundCanvas  = document.getElementById('background-canvas');
-const scoreDisplay      = document.getElementById('score');
-const gameOverlay       = document.getElementById('game-overlay');
+const canvas                    = document.getElementById('game-canvas');
+const backgroundCanvas          = document.getElementById('background-canvas');
+const scoreDisplay              = document.getElementById('score');
+const startGameOverlay          = document.getElementById('game-start');
+const gameOverOverlay           = document.getElementById('game-over');
 
 const ctx               = canvas.getContext('2d');
 const bgCtx             = backgroundCanvas.getContext('2d');
 
 const canvasW           = canvas.width;
 const canvasH           = canvas.height;
+
+const worldColorR   = 233;
+const worldColorG   = 226;
+const worldColorB   = 208;
+
+const foodColorR    = 212;
+const foodColorG    = 93;
+const foodColorB    = 121;
+
+const touchDeltaTreshold = window.innerHeight * .1;
 
 var deltaTime;
 var previousFrameEndTime;
@@ -22,6 +33,40 @@ var foodEaten;
 var foodPos;
 
 var imageData;
+
+var touchPrevX;
+var touchPrevY;
+
+var touchDeltaX;
+var touchDeltaY;
+
+document.ontouchstart = function (event) { 
+    touchPrevX = event.touches[0].screenX;
+    touchPrevY = event.touches[0].screenY;
+
+    touchDeltaX = touchDeltaY = 0;
+}
+
+document.ontouchmove = function (event) { 
+    touchDeltaX += event.touches[0].screenX - touchPrevX;
+    touchDeltaY += event.touches[0].screenY - touchPrevY;
+
+    touchPrevX = event.touches[0].screenX;
+    touchPrevY = event.touches[0].screenY;
+
+    if      (touchDeltaY <= -touchDeltaTreshold) {
+        moveDirY = -1; moveDirX = 0; touchDeltaX = touchDeltaY = 0;
+    }
+    else if (touchDeltaX >= touchDeltaTreshold) {
+        moveDirX =  1; moveDirY = 0; touchDeltaX = touchDeltaY = 0;
+    }
+    else if (touchDeltaY >= touchDeltaTreshold) {
+        moveDirY =  1; moveDirX = 0; touchDeltaX = touchDeltaY = 0;
+    }
+    else if (touchDeltaX <= -touchDeltaTreshold) {
+        moveDirX = -1; moveDirY = 0; touchDeltaX = touchDeltaY = 0;
+    }
+}
 
 document.onkeydown = function (event) {
     switch (event.key) {
@@ -79,11 +124,14 @@ function startGame() {
 
     spawnFood();
 
-    gameOverlay.classList.remove('visible');
+    startGameOverlay.classList.add('hidden');
+    gameOverOverlay.classList.remove('visible');
 
     deltaTime = 0;
 
     setScore(0);
+
+    canvas.classList.remove('hidden');
 
     previousFrameEndTime = Date.now();
     window.requestAnimationFrame(gameLoop);
@@ -93,12 +141,14 @@ function removeAvailablePos (x, y) {
     for (var i = 0; i < availablePos.length; i++) { 
         if (availablePos[i].x === x && availablePos[i].y === y) {
             availablePos.splice(i, 1);
+            break;
         }
     }
 }
 
 function endGame() {
-    gameOverlay.classList.add('visible');
+    gameOverOverlay.classList.add('visible');
+    canvas.classList.add('hidden');
 }
 
 function spawnFood () {
@@ -107,10 +157,17 @@ function spawnFood () {
     removeAvailablePos(foodPos.x, foodPos.y);
 }
 
-bgCtx.strokeStyle = 'black';
+if(!('imageRendering' in document.body.style)) {  
+    alert('Este juego no es compatible con tu navegador, prueba ejecutarlo en una version reciente de Firefox o Chrome');
+}
+
+bgCtx.imageSmoothingEnabled = false;
+canvas.imageSmoothingEnabled = false;
+
+bgCtx.strokeStyle = 'rgba(159, 126, 166)';
 bgCtx.strokeRect(0.5, 0.5, backgroundCanvas.width - 1, backgroundCanvas.height - 1);
 
-const gameLoop = function () {
+function gameLoop () {
     deltaTime = Date.now() - previousFrameEndTime;
     imageData = ctx.createImageData(canvasW, canvasH);
 
@@ -188,11 +245,11 @@ const gameLoop = function () {
 
     var curSnakePiece = head;
     while(curSnakePiece) {
-        drawPixel(curSnakePiece.x, curSnakePiece.y, 0, 0, 0);
+        drawPixel(curSnakePiece.x, curSnakePiece.y, worldColorR, worldColorG, worldColorB);
         curSnakePiece = curSnakePiece.previous;
     }
 
-    drawPixel(foodPos.x, foodPos.y, 255, 0, 0);
+    drawPixel(foodPos.x, foodPos.y, foodColorR, foodColorG, foodColorB);
 
     ctx.putImageData(imageData, 0, 0);
 
@@ -200,6 +257,3 @@ const gameLoop = function () {
     previousFrameEndTime = Date.now();
     window.requestAnimationFrame(gameLoop);
 }
-
-
-startGame();

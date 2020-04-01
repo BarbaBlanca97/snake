@@ -5,22 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" href="styles.css" >
+    <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap" rel="stylesheet">
 
     <title>Snake</title>
 </head>
 <body id="body">
-    <div id="scoreboard">
-        <span> PUNTOS: </span>
-        <span id="score">  </span>
-    </div>
-    <div id="game-container" >
-        <canvas id="game-canvas" width="31" height="31" ></canvas>
-        <canvas id="background-canvas" width="31" height="31" ></canvas>
-        <div id="game-overlay">
-            <div> JUEGO TERMINADO </div>
-            <button onclick="startGame()"> JUZGAR OTRA VEZ </button>
+    <div id="main">
+        <div id="scoreboard">
+            <span> PuNtos: </span>
+            <span id="score"> 0 </span>
+        </div>
+        <div id="game-container" >
+            <canvas class="aspect-ratio" id="game-canvas" width="31" height="31" ></canvas>
+            <canvas class="aspect-ratio" id="background-canvas" width="31" height="31" ></canvas>
+            <div class="game-overlay aspect-ratio" id="game-start">
+                <div> Utiliza las <span class="text-emphasis" >flechas direccionales</span> o <span class="text-emphasis" >desliza el dedo</span> para controlar la serpiente </div>
+                <button onclick="startGame()"> ¡cOmeNZar! </button>
+            </div>
+            <div class="game-overlay aspect-ratio" id="game-over">
+                <div> JueGo terMiNAdO </div>
+                <button onclick="startGame()"> ¡otRa vEz! </button>
+            </div>
         </div>
     </div>
-</body>
+
     <script src="script.js"></script>
+</body>
 </html>
